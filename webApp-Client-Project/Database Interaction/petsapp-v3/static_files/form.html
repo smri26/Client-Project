@@ -1,9 +1,6 @@
-f<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
-      <script src="jquery-3.3.1.min.js"></script>
-
-      <script type="text/javascript"> </script>
-   <style>
+      <style>
       * {
       box-sizing: border-box;
       }
@@ -32,13 +29,19 @@ f<!DOCTYPE html>
    <head>
       <title>Student Event Sign Up</title>
    </head>
-   <form>
+   <FORM NAME="joe">
+         <INPUT TYPE="hidden" NAME="burns">
+         </FORM>
+         
+        
+         
+   <form name="myform">
       <div class="row">
          <div class="column">
             Ticket Number:  
             <input type="text" name="ticketNum" size="5"><br>
             Student ID:  
-            <input type="text" name="id" size="6"><br>
+            <input type="text" name="student_id"  size="6" ><br>
             Last Name: 
             <input type="text" name="lastName" size="15"><br>
             First Name: 
@@ -72,11 +75,40 @@ f<!DOCTYPE html>
       </div>
       <div class="row">
          <div class="column">
-            <button>Delete</button>
+            <button onclick="display()">Delete</button>
          </div>
          <div class="column">
             <input type="submit" value="Save">
          </div>
+       
+         
       </div>
    </form>
-</html>
+
+   
+
+<script src="jquery-3.3.1.min.js"></script>
+   <script type="text/javascript">
+  
+
+
+      function delineate(str)
+           {
+           theleft = str.indexOf("=") + 1;
+           theright = str.lastIndexOf("&");
+           return(str.substring(theleft, theright));
+           }
+     $(document).ready(function()
+     {
+        var locate = window.location
+           document.joe.burns.value = locate
+           
+           var text = document.joe.burns.value
+          var myvar=delineate(text);
+          alert(myvar);
+          $('input[name="student_id"]').val(myvar);
+          
+  
+     });
+  </script>
+  </html>
