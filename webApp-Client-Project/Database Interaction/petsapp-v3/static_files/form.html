@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html>
-      <style>
+
+   <head>
+         <meta name="viewport" content="width=device-width, initial-scale=1">
+         <title>Student Event Sign Up</title>
+   </head>
+
+   <style>
       * {
       box-sizing: border-box;
       }
@@ -26,9 +32,7 @@
       visibility: hidden;
       }
    </style>
-   <head>
-      <title>Student Event Sign Up</title>
-   </head>
+
    <FORM NAME="joe">
          <INPUT TYPE="hidden" NAME="burns">
          </FORM>
@@ -51,8 +55,8 @@
             Grade:  
             <input type="text" name="midInit" size="2"><br><br>
             Guest:  
-            <input type="checkbox" name="guest"><br>
-            <div class= "guest">
+            <input type="checkbox" name="guestBox" onclick="JavaScript:visibility(this,'guestForm');"><br>
+            <div class= "guest" id= "guestForm">
                Last Name: 
                <input type="text" name="lastName" size="15"><br>
                First Name: 
@@ -80,8 +84,6 @@
          <div class="column">
             <input type="submit" value="Save">
          </div>
-       
-         
       </div>
    </form>
 
@@ -110,5 +112,14 @@
           
   
      });
+
+     function visibility(box, item){
+         if (box.checked === true){
+            document.getElementById(item).style.visibility = "visible";
+         } else {
+            document.getElementById(item).style.visibility = "hidden";
+         }
+      }
+
   </script>
   </html>
