@@ -63,12 +63,9 @@
       
                 }
                });
-                console.log('Correct');
                 $('#saveButton').click(() => {
-                  console.log('console or console?');
                  
                   const name = $('input[id="ticketNum"]').val();
-                  console.log($('input[id="studentID"]').val());
          
                   database.ref('tickets/' + name).set({
 
@@ -82,7 +79,12 @@
                   $("input[type=text], textarea").val("");
                   alert("You have completed Prom Signup!");
              });
-           
+             $('#deleteButton').click(() => {
+                  const name = $('input[id="ticketNum"]').val();
+                  if (!(name===null)){
+                     database.ref('tickets/' + name).remove();
+                  }
+             });
          });
            function visibility(box, item){
                if (box.checked === true){
@@ -169,7 +171,7 @@
    </form>
       <div class="row">
          <div class="column">
-           <!----> <button onclick="display()">Delete</button>
+           <!----> <button id="deleteButton">Delete</button>
          </div>
          <div class="column">
             <button id="saveButton">Save</button>
