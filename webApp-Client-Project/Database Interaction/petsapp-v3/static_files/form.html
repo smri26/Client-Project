@@ -73,7 +73,9 @@
                      first:$('input[id="firstName"]').val(),
                   last:$('input[id="lastName"]').val(),
                   middle:$('input[id="midInit"]').val(),
-                  grade:$('input[id="grade"]').val()
+                  grade:$('input[id="grade"]').val(),
+                  payment:$('input[id="pay"]').val()
+
                   
                   });
                   $("input[type=text], textarea").val("");
@@ -81,9 +83,15 @@
              });
              $('#deleteButton').click(() => {
                   const name = $('input[id="ticketNum"]').val();
-                  if (!(name===null)){
+                  if (name!==null){
                      database.ref('tickets/' + name).remove();
                   }
+                  document.getElementById("ticketNum").value = "";
+                  document.getElementById("studentID").value = "";
+                  document.getElementById("lastName").value = "";
+                  document.getElementById("firstName").value = "";
+                  document.getElementById("midInit").value = "";
+                  document.getElementById("grade").value = "";
              });
          });
            function visibility(box, item){
