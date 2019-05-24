@@ -4,6 +4,95 @@
    <head>
          <meta name="viewport" content="width=device-width, initial-scale=1">
          <title>Student Event Sign Up</title>
+         <!-- The core Firebase JS SDK is always required and must be listed first -->
+         <script src="https://www.gstatic.com/firebasejs/4.13.0/firebase.js"></script>
+
+        
+
+         <script>
+         // Your web app's Firebase configuration
+         var firebaseConfig = {
+            apiKey: "AIzaSyCCgoy1_bJzrruepLYIWBbrIUIGxM-p2CQ",
+            authDomain: "signup-form-e4c78.firebaseapp.com",
+            databaseURL: "https://signup-form-e4c78.firebaseio.com",
+            projectId: "signup-form-e4c78",
+            storageBucket: "signup-form-e4c78.appspot.com",
+            messagingSenderId: "1000336889334",
+            appId: "1:1000336889334:web:f5099e3a8ecc1584"
+         };
+         // Initialize Firebase
+         firebase.initializeApp(firebaseConfig);
+         </script>
+         <script src="jquery-3.3.1.min.js"></script>
+         <script type="text/javascript">
+        
+      
+      
+            function delineate(str)
+                 {
+                 theleft = str.indexOf("=") + 1;
+                 theright = str.lastIndexOf("&");
+                 return(str.substring(theleft, theright));
+                 }
+           $(document).ready(function()
+           {
+              const database=firebase.database();
+              var locate = window.location
+                 document.joe.burns.value = locate
+                 
+                 var text = document.joe.burns.value
+                var myvar=delineate(text);
+                $('input[name="studentID"]').val(myvar);
+                const key='students/'+myvar;
+               
+                
+                database.ref(key).once('value', (snapshot) => {
+                const data= snapshot.val();
+                if(!data){
+                   console.log("DNE");
+                   return;
+      
+                }
+                if(data.first&&data.mi&&data.last&&data.gr){
+                  $('input[id="studentID"]').val(myvar);
+                  $('input[id="firstName"]').val(data.first);
+                  $('input[id="lastName"]').val(data.last);
+                  $('input[id="midInit"]').val(data.mi);
+                  $('input[id="grade"]').val(data.gr);
+      
+      
+                }
+               });
+                console.log('Correct');
+                $('#saveButton').click(() => {
+                  console.log('console or console?');
+                 
+                  const name = $('input[id="ticketNum"]').val();
+                  console.log($('input[id="studentID"]').val());
+         
+                  database.ref('tickets/' + name).set({
+
+                     sID: $('input[id="studentID"]').val(),
+                     first:$('input[id="firstName"]').val(),
+                  last:$('input[id="lastName"]').val(),
+                  middle:$('input[id="midInit"]').val(),
+                  grade:$('input[id="grade"]').val()
+                  
+                  });
+                  $("input[type=text], textarea").val("");
+                  alert("You have completed Prom Signup!");
+             });
+           
+         });
+           function visibility(box, item){
+               if (box.checked === true){
+                  document.getElementById(item).style.visibility = "visible";
+               } else {
+                  document.getElementById(item).style.visibility = "hidden";
+               }
+            }
+      
+        </script>
    </head>
 
    <style>
@@ -43,17 +132,17 @@
       <div class="row">
          <div class="column">
             Ticket Number:  
-            <input type="text" name="ticketNum" size="5"><br>
+            <input type="text" id="ticketNum" size="5"><br>
             Student ID:  
-            <input type="text" name="student_id"  size="6" ><br>
+            <input type="text" id="studentID"  size="6" ><br>
             Last Name: 
-            <input type="text" name="lastName" size="15"><br>
+            <input type="text" id="lastName" size="15"><br>
             First Name: 
-            <input type="text" name="firstName" size="15"><br>
+            <input type="text" id="firstName" size="15"><br>
             Middle Initial:  
-            <input type="text" name="midInit" size="1"><br>
+            <input type="text" id="midInit" size="1"><br>
             Grade:  
-            <input type="text" name="midInit" size="2"><br><br>
+            <input type="text" id="grade" size="2"><br><br>
             Guest:  
             <input type="checkbox" name="guestBox" onclick="JavaScript:visibility(this,'guestForm');"><br>
             <div class= "guest" id= "guestForm">
@@ -77,49 +166,19 @@
          Obligations taken care of? <input type="checkbox" name="oblig"><br>
       </div>
       </div>
+   </form>
       <div class="row">
          <div class="column">
-            <button onclick="display()">Delete</button>
+           <!----> <button onclick="display()">Delete</button>
          </div>
          <div class="column">
-            <input type="submit" value="Save">
+            <button id="saveButton">Save</button>
+            <!--<input type="submit" value="Save" id="saveButton">-->
          </div>
       </div>
-   </form>
+   
 
    
 
-<script src="jquery-3.3.1.min.js"></script>
-   <script type="text/javascript">
-  
 
-
-      function delineate(str)
-           {
-           theleft = str.indexOf("=") + 1;
-           theright = str.lastIndexOf("&");
-           return(str.substring(theleft, theright));
-           }
-     $(document).ready(function()
-     {
-        var locate = window.location
-           document.joe.burns.value = locate
-           
-           var text = document.joe.burns.value
-          var myvar=delineate(text);
-          alert(myvar);
-          $('input[name="student_id"]').val(myvar);
-          
-  
-     });
-
-     function visibility(box, item){
-         if (box.checked === true){
-            document.getElementById(item).style.visibility = "visible";
-         } else {
-            document.getElementById(item).style.visibility = "hidden";
-         }
-      }
-
-  </script>
   </html>
