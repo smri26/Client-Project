@@ -34,7 +34,7 @@
                  theright = str.lastIndexOf("&");
                  return(str.substring(theleft, theright));
                  }
-           $(document).ready(function()
+            $(document).ready(function()
            {
               const database=firebase.database();
               var locate = window.location
@@ -42,40 +42,67 @@
                  
                  var text = document.joe.burns.value
                 var myvar=delineate(text);
-                $('input[name="studentID"]').val(myvar);
-                const key='students/'+myvar;
-               
-                
-                database.ref(key).once('value', (snapshot) => {
-                const data= snapshot.val();
-                if(!data){
-                   console.log("DNE");
-                   return;
-      
-                }
-                if(data.first&&data.mi&&data.last&&data.gr){
-                  $('input[id="studentID"]').val(myvar);
-                  $('input[id="firstName"]').val(data.first);
-                  $('input[id="lastName"]').val(data.last);
-                  $('input[id="midInit"]').val(data.mi);
-                  $('input[id="grade"]').val(data.gr);
-      
-      
-                }
+
+                database.ref("tickets").orderByChild("sID").equalTo(myvar).once("value",snapshot => {
+                  if (snapshot.exists()){ //ID exists in database
+                     console.log("exists in tickets!");
+                     var ref = firebase.database().ref('tickets');
+                     ref.orderByChild('sID').equalTo(myvar).on("value", function(snapshot) {
+                        snapshot.forEach(function(child) { 
+                           console.log(child.key);
+                           const data = child;
+                           $('input[id="ticketNum"]').val(child.key);
+                           $('input[id="studentID"]').val(myvar);
+                           $('input[id="firstName"]').val(data.child("first").val());
+                           $('input[id="lastName"]').val(data.child("last").val());
+                           $('input[id="midInit"]').val(data.child("middle").val());
+                           $('input[id="grade"]').val(data.child("grade").val());
+                           if (data.payment){
+                              if (data.child("payment").val()==="cash"){
+                                 document.getElementById("payCash").checked=true;
+                              } else if (data.child("payment").val()==="waiver"){
+                                 document.getElementById("payWaiver").checked=true;
+                              } else {
+                                 document.getElementById("payWaiver").checked=true;
+                                 document.getElementById("checkNum").value=data.child("payment").val();
+                              }
+                           }
+                        }); 
+                     });
+                  } else { //ID does not exist in tickets database
+                     const key='students/'+myvar;
+                     console.log("exists in students!");
+                     database.ref(key).once('value', (snapshot) => {
+                     const data= snapshot.val();
+                     if(!data){
+                        console.log("DNE");
+                        alert("ID does not exist.");
+                        return;
+                     }
+                     if(data.first&&data.mi&&data.last&&data.gr){
+                        $('input[id="studentID"]').val(myvar);
+                        $('input[id="firstName"]').val(data.first);
+                        $('input[id="lastName"]').val(data.last);
+                        $('input[id="midInit"]').val(data.mi);
+                        $('input[id="grade"]').val(data.gr);
+                     }
+                     });
+                     //Automatic ticket number
+                  }
                });
-                $('#saveButton').click(() => {
+
+               $('#saveButton').click(() => {
                  
                   const name = $('input[id="ticketNum"]').val();
          
                   database.ref('tickets/' + name).set({
 
-                     sID: $('input[id="studentID"]').val(),
+                     sID:$('input[id="studentID"]').val(),
                      first:$('input[id="firstName"]').val(),
-                  last:$('input[id="lastName"]').val(),
-                  middle:$('input[id="midInit"]').val(),
-                  grade:$('input[id="grade"]').val(),
-                  payment:$('input[id="pay"]').val()
-
+                     last:$('input[id="lastName"]').val(),
+                     middle:$('input[id="midInit"]').val(),
+                     grade:$('input[id="grade"]').val(),
+                     payment:getPayment()
                   
                   });
                   $("input[type=text], textarea").val("");
@@ -86,12 +113,8 @@
                   if (name!==null){
                      database.ref('tickets/' + name).remove();
                   }
-                  document.getElementById("ticketNum").value = "";
-                  document.getElementById("studentID").value = "";
-                  document.getElementById("lastName").value = "";
-                  document.getElementById("firstName").value = "";
-                  document.getElementById("midInit").value = "";
-                  document.getElementById("grade").value = "";
+                  $("input[type=text], textarea").val("");
+                  window.location.replace("Enter ID Page.html");
              });
          });
            function visibility(box, item){
@@ -99,6 +122,14 @@
                   document.getElementById(item).style.visibility = "visible";
                } else {
                   document.getElementById(item).style.visibility = "hidden";
+               }
+            }
+
+            function getPayment(){ //returns check number if check, otherwise id (incomplete)
+               if ($('input[name="pay"]:checked').val()==="check"){
+                  return $('input[id="checkNum"]').val();
+               } else {
+                  return $('input[name="pay"]:checked').val();
                }
             }
       
@@ -162,14 +193,15 @@
                <input type="text" name="firstName" size="15"><br>
                <strong>Payment Method</strong><br>
                <input type="radio" name="pay" value="cash">Cash<br>
-               <input type="radio" name="pay" value="check">Check  <input type="text" name="checkNum" placeholder="Check Number" size="12" maxLength="9"><br>
+               <input type="radio" name="pay" value="check">Check  <input type="text" id="checkNum" placeholder="Check Number" size="9"><br>
                <input type="radio" name="pay" value="waiver">Financial Waiver<br><br>
             </div>
          </div>
          <div class="column">
             <strong>Payment Method</strong><br>
+            <!--id=-->
             <input type="radio" name="pay" value="cash">Cash<br>
-            <input type="radio" name="pay" value="check">Check  <input type="text" name="checkNum" placeholder="Check Number" size="12" maxLength="9"><br>
+            <input type="radio" name="pay" value="check">Check  <input type="text" id="checkNumG" placeholder="Check Number" size="9"><br>
             <input type="radio" name="pay" value="waiver">Financial Waiver<br><br>
          </div>
          <strong>Student Obligations</strong><br>
