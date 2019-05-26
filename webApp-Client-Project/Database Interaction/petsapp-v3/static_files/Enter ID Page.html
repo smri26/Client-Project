@@ -53,10 +53,6 @@
       }
 
       function addOption(select, optText, name){
-         /*var option = document.createElement("option");
-         option.text = optText;
-         option.value = name;
-         select.options.add(option);*/
          var select = document.getElementById("resBox");
          select.options[select.options.length] = new Option(optText, name);
       }
