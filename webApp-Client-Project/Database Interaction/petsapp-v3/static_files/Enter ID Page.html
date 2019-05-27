@@ -4,6 +4,12 @@
       <head>
             <meta name="viewport" content="width=device-width, initial-scale=1">
             <title>Student Event Sign Up</title>
+
+            <style>
+               #resBox {
+                  width:172px;
+               }
+            </style>
        </head>
 
        <!-- The core Firebase JS SDK is always required and must be listed first -->
@@ -27,45 +33,43 @@
       <script src="jquery-3.3.1.min.js"></script>
       <script type="text/javascript">
 
-      function searchNames(query, box){
-         console.log(query);
-         var names = [["Last", "First", "ID"]];
+      function fillSelect(query, box){ //Query delay causing error
+         var options = searchNames(query);
+         if (options.length===0){
+            alert("Name does not exist.");
+         } else {
+            clearOptions();
+            addOptions(options);
+         } 
+      }
+
+      function searchNames(query){
+         var names = [];
          const database=firebase.database();
-         const key='students/';
-         database.ref(key).once('value', (snapshot) => {
-            const data= snapshot.val();
-            if(!data){
-               alert("Name does not exist.");
-               return;
-            }
-            var ref = firebase.database().ref('students');
-               ref.orderByChild('last').equalTo(query).on("value", function(snapshot) {
-                  snapshot.forEach(function(child) { 
-                     var info = [child.child("last").val(),child.child("first").val(),child.key]
-                     names.push(info);
-                  }); 
-               });
+         var ref = database.ref('students');
+         ref.orderByChild('last').equalTo(query).on("value", function(snapshot) {
+            snapshot.forEach(function(child) {
+               console.log(child.key); 
+               var info = [child.child("last").val(),child.child("first").val(),child.child("mi").val(),child.key];
+               names.push(info);
+            }); 
          });
-         clearOptions(box);
-         for (var i = 0; i < names.length; i++){
-            addOption(box, names[i][0]+", "+names[i][1]+"\t"+names[i][2], names[i][2]);
+         return names;
+      }
+
+      function addOptions(options){
+         for (var i = 0; i < options.length; i++){
+            var text = options[i][0]+", "+options[i][1]+" "+options[i][2]
+            var opt = new Option(text, options[i][3]);
+            $(opt).html(text);
+            $("#resBox").append(opt);
          }
       }
 
-      function addOption(select, optText, name){
-         var select = document.getElementById("resBox");
-         select.options[select.options.length] = new Option(optText, name);
-      }
-
-      function clearOptions(box){
-         try{
-            for(var i = box.options.length - 1; i >= 0 ; i--){
-               box.remove(i);
-            }
-         } catch(error){
-            console.log("No options to clear.");
-            console.log(error);
-         }
+      function clearOptions(){
+         $('#resBox')
+            .empty()
+            .append('<option style="display:none" disabled selected value>Names</option>');
       }
 
       </script>
@@ -91,10 +95,10 @@
          <br>
          Last Name<br>
          <input type="text" name="lastname">
-         <button type="button" onclick="Javascript:searchNames(lastname.value, 'resBox');"> Search </button><br>
+         <button type="button" onclick="Javascript:fillSelect(lastname.value, 'resBox');"> Search </button><br>
          <p>Names will appear below</p>
          <select id="resBox" size="10">
-            <option style="display:none" disabled selected value>Names</option>
+            <option disabled selected value>Names</option> <!--style="display:none"-->
          </select>
          <br><br>
          <input type="submit"  value="Submit" >
