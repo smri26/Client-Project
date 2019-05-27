@@ -45,11 +45,9 @@
 
                 database.ref("tickets").orderByChild("sID").equalTo(myvar).once("value",snapshot => {
                   if (snapshot.exists()){ //ID exists in database
-                     console.log("exists in tickets!");
                      var ref = firebase.database().ref('tickets');
                      ref.orderByChild('sID').equalTo(myvar).on("value", function(snapshot) {
                         snapshot.forEach(function(child) { 
-                           console.log(child.key);
                            const data = child;
                            $('input[id="ticketNum"]').val(child.key);
                            $('input[id="studentID"]').val(myvar);
@@ -57,21 +55,21 @@
                            $('input[id="lastName"]').val(data.child("last").val());
                            $('input[id="midInit"]').val(data.child("middle").val());
                            $('input[id="grade"]').val(data.child("grade").val());
-                           if (data.payment){
+                           if (data.child("payment")){
                               if (data.child("payment").val()==="cash"){
-                                 document.getElementById("payCash").checked=true;
+                                 console.log(data.child("payment").val());
+                                 $('input[name=pay][value=cash]').prop('checked', 'checked');
                               } else if (data.child("payment").val()==="waiver"){
-                                 document.getElementById("payWaiver").checked=true;
+                                 $('input[name=pay][value=waiver]').prop('checked', 'checked');
                               } else {
-                                 document.getElementById("payWaiver").checked=true;
-                                 document.getElementById("checkNum").value=data.child("payment").val();
+                                 $('input[name=pay][value=check]').prop('checked', 'checked');
+                                 $('input[id="checkNum"]').val(data.child("payment").val());
                               }
                            }
                         }); 
                      });
                   } else { //ID does not exist in tickets database
                      const key='students/'+myvar;
-                     console.log("exists in students!");
                      database.ref(key).once('value', (snapshot) => {
                      const data= snapshot.val();
                      if(!data){
@@ -125,9 +123,18 @@
                }
             }
 
+            function enable(box, item){
+               if (box.checked === true){
+                  document.getElementById(item).style.visibility = "visible";
+               } else {
+                  document.getElementById(item).style.visibility = "hidden";
+               }
+            }
+
             function getPayment(){ //returns check number if check, otherwise id (incomplete)
-               if ($('input[name="pay"]:checked').val()==="check"){
-                  return $('input[id="checkNum"]').val();
+               if ($('input[name=pay][value=check]').is(":checked")){
+                  console.log($('input[id="checkNum"]').val())
+                  return "123456789"//$('input[id="checkNum"]').val();
                } else {
                   return $('input[name="pay"]:checked').val();
                }
@@ -192,9 +199,10 @@
                First Name: 
                <input type="text" name="firstName" size="15"><br>
                <strong>Payment Method</strong><br>
-               <input type="radio" name="pay" value="cash">Cash<br>
-               <input type="radio" name="pay" value="check">Check  <input type="text" id="checkNum" placeholder="Check Number" size="9"><br>
-               <input type="radio" name="pay" value="waiver">Financial Waiver<br><br>
+               <input type="radio" name="pay" id="payCash" value="cash">Cash<br>
+               <input type="radio" name="pay" id="payCheck" value="check" onclick="JavaScript:enable(this, 'checkNum');">Check  
+                  <input type="text" id="checkNum" placeholder="Check Number" size="9"><br>
+               <input type="radio" name="pay" id="payWaiver" value="waiver">Financial Waiver<br><br>
             </div>
          </div>
          <div class="column">
