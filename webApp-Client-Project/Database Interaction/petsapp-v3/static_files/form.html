@@ -83,9 +83,33 @@
                         $('input[id="lastName"]').val(data.last);
                         $('input[id="midInit"]').val(data.mi);
                         $('input[id="grade"]').val(data.gr);
+               
                      }
+                     else if (data.first&&data.last&&data.gr){
+                        $('input[id="studentID"]').val(myvar);
+                        $('input[id="firstName"]').val(data.first);
+                        $('input[id="lastName"]').val(data.last);
+                        $('input[id="grade"]').val(data.gr);
+               
+                     }
+                    
+
                      });
-                     //Automatic ticket number
+                     const key2='obligations/'+myvar;
+                     database.ref(key2).once('value', (snapshot) => {
+                     const data= snapshot.val();
+                     if(!data){
+                        return;
+                        
+                     }
+                     else{
+                        alert("This student has unpaid obligations.");
+                     }
+      
+                    
+
+                     });
+                     
                   }
                });
 
