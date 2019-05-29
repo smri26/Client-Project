@@ -59,7 +59,10 @@
 
       function addOptions(options){
          for (var i = 0; i < options.length; i++){
-            var text = options[i][0]+", "+options[i][1]+" "+options[i][2]
+            var text = options[i][0]+", "+options[i][1];
+            if (options[i][2]){
+               text+= " "+options[i][2];
+            }
             var opt = new Option(text, options[i][3]);
             $(opt).html(text);
             $("#resBox").append(opt);
@@ -71,6 +74,11 @@
             .empty()
             .append('<option style="display:none" disabled selected value>Names</option>');
       }
+
+      $('#resBox').change(function() { 
+         console.log("clicked!");
+         $('input[name="studentID"]').val($("#resBox").val());
+      });
 
       </script>
 
@@ -91,7 +99,7 @@
       </style>
       <form action="/form.html">
          Student ID <br>
-         <input type="number" name="Student+ID">
+         <input type="number" name="studentID">
          <br>
          Last Name<br>
          <input type="text" name="lastname">
