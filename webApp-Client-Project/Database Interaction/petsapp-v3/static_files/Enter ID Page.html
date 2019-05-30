@@ -34,27 +34,25 @@
       <script type="text/javascript">
 
       function fillSelect(query, box){ //Query delay causing error
-         var options = searchNames(query);
-         if (options.length===0){
-            alert("Name does not exist.");
-         } else {
-            clearOptions();
-            addOptions(options);
-         } 
-      }
-
-      function searchNames(query){
          var names = [];
-         const database=firebase.database();
-         var ref = database.ref('students');
+         const ref=firebase.database().ref('students');
+         console.log(performance.now());
          ref.orderByChild('last').equalTo(query).on("value", function(snapshot) {
             snapshot.forEach(function(child) {
-               console.log(child.key); 
                var info = [child.child("last").val(),child.child("first").val(),child.child("mi").val(),child.key];
                names.push(info);
             }); 
          });
-         return names;
+         console.log(performance.now());
+         setTimeout(function(){
+            if (names.length===0){
+               //alert("Name does not exist.");
+            } else {
+               clearOptions();
+               addOptions(names);
+            } 
+         }, 200);
+
       }
 
       function addOptions(options){
@@ -75,16 +73,17 @@
             .append('<option style="display:none" disabled selected value>Names</option>');
       }
 
-      $('#resBox').change(function() { 
-         console.log("clicked!");
-         $('input[name="studentID"]').val($("#resBox").val());
+      $(document).ready(function() {
+         $('#resBox').change(function() { 
+            $('input[name="studentID"]').val($("#resBox").val());
+         });
       });
 
       </script>
 
       
    <body>
-      <h2>Enter Name or Student ID # 
+      <h2>Student ID # or Enter Name 
       </h2>
       <style>
          h2{
@@ -105,8 +104,8 @@
          <input type="text" name="lastname">
          <button type="button" onclick="Javascript:fillSelect(lastname.value, 'resBox');"> Search </button><br>
          <p>Names will appear below</p>
-         <select id="resBox" size="10">
-            <option disabled selected value>Names</option> <!--style="display:none"-->
+         <select id="resBox" class="names" size="10">
+            <option style="display:none" disabled selected value>Names</option> <!---->
          </select>
          <br><br>
          <input type="submit"  value="Submit" >

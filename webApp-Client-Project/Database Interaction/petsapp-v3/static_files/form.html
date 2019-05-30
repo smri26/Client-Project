@@ -52,7 +52,7 @@
                      ref.orderByChild('sID').equalTo(myvar).on("value", function(snapshot) {
                         snapshot.forEach(function(child) { 
                            const data = child;
-                           $('input[id="ticketNum"]').val(child.key);
+                           $('input[id="ticketNum"]').val(data.key);
                            $('input[id="studentID"]').val(myvar);
                            $('input[id="firstName"]').val(data.child("first").val());
                            $('input[id="lastName"]').val(data.child("last").val());
@@ -72,31 +72,28 @@
                            }
 
                            if (data.child("guest") !== null) {
-                              ref.orderByKey().on("child_added", function(snapshot) {
+                              ref.orderByChild('host').equalTo(data.key).on("value", function(snapshot) {
                                  snapshot.forEach(function(child) { 
-                                    console.log(child.key);
+                                    const guestRef = child;
+                                    $('input[id="ticketNumG"]').val(guestRef.key);
+                                    $('input[id="firstNameG"]').val(guestRef.child("first").val());
+                                    $('input[id="lastNameG"]').val(guestRef.child("last").val());
+                                    if (guestRef.child("payment")){
+                                       if (guestRef.child("payment").val()==="cash"){
+                                          console.log(guestRef.child("payment").val());
+                                          $('input[name=payG][value=cash]').prop('checked', 'checked');
+                                       } else if (guestRef.child("payment").val()==="waiver"){
+                                          $('input[name=payG][value=waiver]').prop('checked', 'checked');
+                                       } else {
+                                          $('input[name=payG][value=check]').prop('checked', 'checked');
+                                          $('input[id="checkNumG"]').val(guestRef.child("payment").val());
+                                          $("input[id='checkNumG']").prop("disabled",false);
+                                       }
+                                    }
+                                    $('input[name="guestBox"]').prop('checked', true);
+                                    document.getElementById("guestForm").style.visibility = "visible";
                                  });
                               });
-                              /*ref.orderByKey('host').equalTo(data.child("guest")).on("value", function(snapshot) {
-                                 snapshot.forEach(function(child) { 
-                                    console.log(child.key);
-                              $('input[id="ticketNumG"]').val(guestRef.key);
-                              $('input[id="firstNameG"]').val(guestRef.child("first").val());
-                              $('input[id="lastNameG"]').val(guestRef.child("last").val());
-                              if (guestRef.child("payment")){
-                                 if (guestRef.child("payment").val()==="cash"){
-                                    console.log(guestRef.child("payment").val());
-                                    $('input[name=payG][value=cash]').prop('checked', 'checked');
-                                 } else if (guestRef.child("payment").val()==="waiver"){
-                                    $('input[name=payG][value=waiver]').prop('checked', 'checked');
-                                 } else {
-                                    $('input[name=payG][value=check]').prop('checked', 'checked');
-                                    $('input[id="checkNumG"]').val(guestRef.child("payment").val());
-                                    $("input[id='checkNumG']").prop("disabled",false);
-                                 }
-                              }
-                                 });
-                              });*/
                            }
                         }); 
                      });
@@ -135,6 +132,7 @@
                      }
                      else{
                         alert("This student has unpaid obligations.");
+                        document.getElementById("oblig").style.visibility = "visible";
                      }
 
                      });
@@ -145,6 +143,7 @@
 
                $('#saveButton').click(() => {
                  
+                 if (checkReqs()){
                   const name = $('input[id="ticketNum"]').val();
          
                   database.ref('tickets/' + name).set({
@@ -159,8 +158,9 @@
                   
                   });
 
-                  //Creates guest entry in database if checked
-                  if($("input[name='guestBox']").prop("checked") == true){
+                  //Creates guest entry in database if checked, otherwise if unchecked deletes if guest exists in database
+                  if($("input[name='guestBox']").prop("checked") === true){
+                     console.log("has guest");
                      const nameG = $('input[id="ticketNumG"]').val()
                      database.ref('tickets/' + nameG).set({
 
@@ -177,24 +177,40 @@
                         guest:nameG
 
                      });
+                  } else {
+                     console.log("deleted guest");
+                     //console.log(database.ref('input[id="ticketNumG"]').child("guest").key);
+                     try {
+                        database.ref('tickets/' + (database.ref('input[id="ticketNumG"]').child("guest").key)).remove();
+                     } catch (error){
+                        console.log(error);
+                     }
+                     database.ref('tickets/' + name).update({
+
+                        guest:null
+
+                     });
                   }
 
                   $("input[type=text], textarea").val("");
                   alert("You have completed Prom Signup!");
+                  window.location.replace("Enter ID Page.html");
+                 }
              });
 
              $('#deleteButton').click(() => {
+                  const ref = database.ref('tickets');
                   const name = $('input[id="ticketNum"]').val();
-                  if (name!==null){
-                     database.ref('tickets/' + name).remove();
+                  if (name){
+                     ref.child(name).remove();
                   }
                   const guest = $('input[id="ticketNumG"]').val();
-                  if (guest!==null){
-                     database.ref('tickets/' + guest).remove();
+                  if (guest){
+                     ref.child(guest).remove();
                   }
 
                   $("input[type=text], textarea").val("");
-                  window.location.replace("Enter ID Page.html");
+                  //window.location.replace("Enter ID Page.html");
              });
 
              $('input[type="radio"][name="pay"]').click(function() { 
@@ -239,6 +255,36 @@
                }
                
             }
+
+            function checkReqs(){
+               var text = "";
+               //if ($('[id=oblig]').is(":visible") && $("input[name='oblig']").prop("checked") === false){
+               //   text+="\n• Student Obligations";
+               //}
+               if (!$('input[id="ticketNum"]').val()){
+                  text+="\n• Ticket Number";
+               }
+               if (!$('input[id="studentID"]').val()){
+                  text+="\n• Student ID";
+               }
+               if (!$('input[id="lastName"]').val()){
+                  text+="\n• Last Name";
+               }
+               if (!$('input[id="firstName"]').val()){
+                  text+="\n• First Name";
+               }
+               if(!$('input[name="pay"]:checked').val()){
+                  text+="\n• Payment Options";
+               } else if ($('input[name="pay"]:checked').val() === "check" && !$('input[id="checkNum"]').val()){
+                  text+="\n• Check Number";
+               }
+               if (text.length > 0){
+                  console.log(text);
+                  alert("Please complete/review these sections before you can continue: "+ text);
+                  return false;
+               }
+               return true;
+            }
       
         </script>
    </head>
@@ -268,6 +314,10 @@
       padding-left: 20px;
       visibility: hidden;
       }
+      .studentoblig {
+      visibility: hidden;
+      }
+
    </style>
 
    <FORM NAME="joe">
@@ -317,8 +367,10 @@
                <input type="text" id="checkNum" placeholder="Check Number" size="9"><br>
             <input type="radio" name="pay" id="payWaiverG" value="waiver">Financial Waiver<br><br>
          </div>
+         <div class="studentoblig" id="oblig">
          <strong>Student Obligations</strong><br>
          Obligations taken care of? <input type="checkbox" name="oblig"><br>
+      </div>
       </div>
       </div>
    </form>
