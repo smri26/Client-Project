@@ -30,16 +30,21 @@
       function searchNames(query, box, callback){ //Query delay causing error
          var names = [];
          const ref=firebase.database().ref('students');
-         ref.orderByChild('last').equalTo(query).on("value", function(snapshot) {
+         //ref.orderByChild('last').equalTo(query).on("value", function(snapshot) {
+         ref.orderByChild('last').equalTo(query).once("value").then(function(snapshot) {
             snapshot.forEach(function(child) {
                var info = [child.child("last").val(),child.child("first").val(),child.child("mi").val(),child.key];
                names.push(info);
             }); 
-         });
-         clearOptions();
-         addOptions(names);
+         }).then(function(){
+            clearOptions();
+            addOptions(names);
 
-         callback(names);
+            callback(names);
+         }, function(error){
+            console.log("Error");
+         });
+         
 
       }
 
@@ -77,7 +82,7 @@
       </script>
       
    <body>
-      <h2>Student ID # or Enter Name 
+      <h2>Enter Student ID # or Last Name 
       </h2>
       <style>
          h2{

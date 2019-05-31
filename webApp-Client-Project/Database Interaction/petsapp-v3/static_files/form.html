@@ -200,7 +200,8 @@
 
              $('#deleteButton').click(() => {
                   const ref = database.ref('tickets');
-                  const name = $('input[id="ticketNum"]').val();
+                  const name = $('#ticketNum').val();
+                  //const name = $('input[id="ticketNum"]').val();
                   if (name){
                      ref.child(name).remove();
                   }
