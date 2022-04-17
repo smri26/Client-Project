@@ -1,1 +1,1 @@
-client projecr
+client project
